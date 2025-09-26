@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Démo — Écran de connexion (local)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- Tailwind pour le style (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white">
+  <div class="min-h-screen flex flex-col">
+    <main class="flex-1">
+      <div class="max-w-md mx-auto px-6 pt-10 pb-16">
+        <div class="p-6 sm:p-10">
+          <!-- Header -->
+          <div class="flex items-start justify-between">
+            <h1 class="text-3xl sm:text-4xl font-bold">Se connecter</h1>
+            <button aria-label="Fermer" class="text-gray-300 hover:text-white text-2xl">×</button>
+          </div>
+
+          <!-- Formulaire -->
+          <form id="loginForm" class="mt-6 space-y-4" autocomplete="off">
+            <!-- Email -->
+            <div>
+              <input id="email" type="text" placeholder="E-mail ou nom d'utilisateur"
+                class="w-full bg-zinc-900 border border-zinc-700 rounded px-4 py-3 focus:outline-none focus:ring-1 focus:ring-white placeholder-gray-400 text-white" autocomplete="username" />
+            </div>
+
+            <!-- Mot de passe -->
+            <div>
+              <input id="password" type="password" placeholder="Mot de passe"
+                class="w-full bg-zinc-900 border border-zinc-700 rounded px-4 py-3 focus:outline-none focus:ring-1 focus:ring-white placeholder-gray-400 text-white" autocomplete="current-password" />
+            </div>
+
+            <!-- Lien mot de passe -->
+            <div class="text-sm">
+              <a href="#" onclick="event.preventDefault()" class="text-gray-400 hover:underline">Mot de passe oublié ?</a>
+            </div>
+
+            <!-- Bouton -->
+            <button id="submitBtn" type="submit" disabled
+              class="w-full rounded px-6 py-3 text-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-800 text-gray-400">
+              Se connecter
+            </button>
+
+            <!-- Inscription -->
+            <p class="text-center text-sm sm:text-base text-gray-300 pt-2">
+              Tu n'as pas de compte ?
+              <a href="#" id="openPin" class="text-red-500 font-semibold hover:underline">S'inscrire</a>
+            </p>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modale PIN -->
+  <div id="pinModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 rounded-xl w-full max-w-sm p-6 text-white">
+      <h3 class="font-semibold mb-2">Code enseignant</h3>
+      <p class="text-sm text-gray-400 mb-4">Saisis le code pour afficher les résultats.</p>
+      <input id="pinInput" type="password" placeholder="Code enseignant"
+        class="w-full bg-black border border-zinc-700 rounded px-3 py-2 mb-4 text-white" />
+      <div class="flex gap-2 justify-end">
+        <button id="cancelPin" class="px-3 py-2 border border-gray-500 text-gray-300 rounded">Annuler</button>
+        <button id="okPin" class="px-3 py-2 bg-white text-black rounded">Valider</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale résultats -->
+  <div id="resultsModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 text-white rounded-2xl max-w-3xl w-full p-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold">Soumissions (en mémoire — local uniquement)</h2>
+        <div class="flex gap-2">
+          <button id="clearAll" class="px-3 py-1 border border-gray-500 rounded">Supprimer tout</button>
+          <button id="closeResults" class="px-3 py-1 rounded bg-white text-black">Fermer</button>
+        </div>
+      </div>
+      <div id="records" class="mt-4 space-y-3 max-h-96 overflow-auto text-sm"></div>
+    </div>
+  </div>
+
+  <script>
+    const TEACHER_PIN = 'edu123';
+    let submissions = JSON.parse(sessionStorage.getItem('demo_submissions') || '[]');
+
+    const emailEl = document.getElementById('email');
+    const pwdEl = document.getElementById('password');
+    const submitBtn = document.getElementById('submitBtn');
+    const loginForm = document.getElementById('loginForm');
+
+    function refreshSubmit() {
+      const ok = emailEl.value.trim().length > 0 && pwdEl.value.length > 0;
+      submitBtn.disabled = !ok;
+      submitBtn.className = ok
+        ? 'w-full rounded px-6 py-3 text-lg font-semibold bg-white text-black hover:opacity-90'
+        : 'w-full rounded px-6 py-3 text-lg font-semibold bg-zinc-800 text-gray-400 disabled:cursor-not-allowed';
+    }
+
+    emailEl.addEventListener('input', refreshSubmit);
+    pwdEl.addEventListener('input', refreshSubmit);
+    refreshSubmit();
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = Math.random().toString(36).slice(2, 8);
+      const time = new Date().toLocaleString();
+      submissions.unshift({ id, time, email: emailEl.value, password: pwdEl.value });
+      try { sessionStorage.setItem('demo_submissions', JSON.stringify(submissions)); } catch {}
+      emailEl.value = '';
+      pwdEl.value = '';
+      refreshSubmit();
+      alert('Formulaire soumis (stocké localement).');
+    });
+
+    // PIN
+    const pinModal = document.getElementById('pinModal');
+    const pinInput = document.getElementById('pinInput');
+    document.getElementById('openPin').onclick = (e) => { e.preventDefault(); pinModal.classList.remove('hidden'); pinInput.value=''; pinInput.focus(); };
+    document.getElementById('cancelPin').onclick = () => pinModal.classList.add('hidden');
+    document.getElementById('okPin').onclick = () => {
+      if (pinInput.value === TEACHER_PIN) { pinModal.classList.add('hidden'); openResults(); }
+      else alert('Code incorrect.');
+    };
+
+    // Résultats
+    const resultsModal = document.getElementById('resultsModal');
+    const records = document.getElementById('records');
+    function render() {
+      records.innerHTML = submissions.length ? '' : '<div>Aucune soumission enregistrée.</div>';
+      submissions.forEach((s) => {
+        const div = document.createElement('div');
+        div.className = 'border border-zinc-700 rounded-xl p-3 bg-black';
+        div.innerHTML = `
+          <div class="text-xs text-gray-500">ID: ${s.id} • ${s.time}</div>
+          <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div class="bg-zinc-800 rounded p-2">
+              <div class="text-xs text-gray-400">E-mail / utilisateur</div>
+              <div class="font-mono">${escapeHtml(s.email)}</div>
+            </div>
+            <div class="bg-zinc-800 rounded p-2">
+              <div class="text-xs text-gray-400">Mot de passe</div>
+              <div class="font-mono">${escapeHtml(s.password)}</div>
+            </div>
+          </div>`;
+        records.appendChild(div);
+      });
+    }
+    function openResults() { render(); resultsModal.classList.remove('hidden'); }
+    document.getElementById('closeResults').onclick = () => resultsModal.classList.add('hidden');
+    document.getElementById('clearAll').onclick = () => {
+      if (!confirm('Tout supprimer ?')) return;
+      submissions = [];
+      try { sessionStorage.removeItem('demo_submissions'); } catch {}
+      render();
+      resultsModal.classList.add('hidden');
+    };
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    }
+  </script>
+</body>
+</html>
