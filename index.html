@@ -7,46 +7,39 @@
   <!-- Tailwind pour le style (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-black text-white">
+<body class="bg-white text-gray-900">
   <div class="min-h-screen flex flex-col">
     <main class="flex-1">
-      <div class="max-w-md mx-auto px-6 pt-10 pb-16">
-        <div class="p-6 sm:p-10">
-          <!-- Header -->
+      <div class="max-w-2xl mx-auto px-6 pt-10 pb-16">
+        <div class="rounded-3xl border bg-white/60 backdrop-blur p-6 sm:p-10 shadow-sm">
           <div class="flex items-start justify-between">
-            <h1 class="text-3xl sm:text-4xl font-bold">Se connecter</h1>
-            <button aria-label="Fermer" class="text-gray-300 hover:text-white text-2xl">×</button>
+            <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight">Se connecter</h1>
+            <button aria-label="Fermer" class="p-2 rounded-full hover:bg-gray-100">×</button>
           </div>
 
-          <!-- Formulaire -->
           <form id="loginForm" class="mt-6 space-y-4" autocomplete="off">
-            <!-- Email -->
-            <div>
-              <input id="email" type="text" placeholder="E-mail ou nom d'utilisateur"
-                class="w-full bg-zinc-900 border border-zinc-700 rounded px-4 py-3 focus:outline-none focus:ring-1 focus:ring-white placeholder-gray-400 text-white" autocomplete="username" />
+            <div class="relative">
+              <input id="email" type="email" placeholder="E-mail ou nom d'utilisateur"
+                class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black" autocomplete="username" />
             </div>
 
-            <!-- Mot de passe -->
-            <div>
+            <div class="relative">
               <input id="password" type="password" placeholder="Mot de passe"
-                class="w-full bg-zinc-900 border border-zinc-700 rounded px-4 py-3 focus:outline-none focus:ring-1 focus:ring-white placeholder-gray-400 text-white" autocomplete="current-password" />
+                class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black" autocomplete="current-password" />
             </div>
 
-            <!-- Lien mot de passe -->
             <div class="text-sm">
-              <a href="#" onclick="event.preventDefault()" class="text-gray-400 hover:underline">Mot de passe oublié ?</a>
+              <a href="#" onclick="event.preventDefault()" class="text-gray-700 hover:underline">Mot de passe oublié ?</a>
             </div>
 
-            <!-- Bouton -->
             <button id="submitBtn" type="submit" disabled
-              class="w-full rounded px-6 py-3 text-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed bg-zinc-800 text-gray-400">
+              class="w-full rounded-2xl px-6 py-4 text-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed bg-gray-100 text-gray-500">
               Se connecter
             </button>
 
-            <!-- Inscription -->
-            <p class="text-center text-sm sm:text-base text-gray-300 pt-2">
+            <p class="text-center text-sm sm:text-base text-gray-800 pt-2">
               Tu n'as pas de compte ?
-              <a href="#" id="openPin" class="text-red-500 font-semibold hover:underline">S'inscrire</a>
+              <a href="#" id="openPin" class="text-red-600 font-semibold hover:underline">S'inscrire</a>
             </p>
           </form>
         </div>
@@ -55,27 +48,26 @@
   </div>
 
   <!-- Modale PIN -->
-  <div id="pinModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4">
-    <div class="bg-zinc-900 rounded-xl w-full max-w-sm p-6 text-white">
+  <div id="pinModal" class="hidden fixed inset-0 bg-black/30 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl w-full max-w-sm p-6">
       <h3 class="font-semibold mb-2">Code enseignant</h3>
-      <p class="text-sm text-gray-400 mb-4">Saisis le code pour afficher les résultats.</p>
-      <input id="pinInput" type="password" placeholder="Code enseignant"
-        class="w-full bg-black border border-zinc-700 rounded px-3 py-2 mb-4 text-white" />
+      <p class="text-sm text-gray-600 mb-4">Saisis le code pour afficher les résultats.</p>
+      <input id="pinInput" type="password" placeholder="Code enseignant" class="w-full border rounded px-3 py-2 mb-4" />
       <div class="flex gap-2 justify-end">
-        <button id="cancelPin" class="px-3 py-2 border border-gray-500 text-gray-300 rounded">Annuler</button>
-        <button id="okPin" class="px-3 py-2 bg-white text-black rounded">Valider</button>
+        <button id="cancelPin" class="px-3 py-2 border rounded">Annuler</button>
+        <button id="okPin" class="px-3 py-2 bg-black text-white rounded">Valider</button>
       </div>
     </div>
   </div>
 
   <!-- Modale résultats -->
-  <div id="resultsModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4">
-    <div class="bg-zinc-900 text-white rounded-2xl max-w-3xl w-full p-6">
+  <div id="resultsModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-3xl w-full p-6">
       <div class="flex items-center justify-between">
         <h2 class="text-lg font-semibold">Soumissions (en mémoire — local uniquement)</h2>
         <div class="flex gap-2">
-          <button id="clearAll" class="px-3 py-1 border border-gray-500 rounded">Supprimer tout</button>
-          <button id="closeResults" class="px-3 py-1 rounded bg-white text-black">Fermer</button>
+          <button id="clearAll" class="px-3 py-1 border rounded">Supprimer tout</button>
+          <button id="closeResults" class="px-3 py-1 rounded bg-black text-white">Fermer</button>
         </div>
       </div>
       <div id="records" class="mt-4 space-y-3 max-h-96 overflow-auto text-sm"></div>
@@ -95,8 +87,8 @@
       const ok = emailEl.value.trim().length > 0 && pwdEl.value.length > 0;
       submitBtn.disabled = !ok;
       submitBtn.className = ok
-        ? 'w-full rounded px-6 py-3 text-lg font-semibold bg-white text-black hover:opacity-90'
-        : 'w-full rounded px-6 py-3 text-lg font-semibold bg-zinc-800 text-gray-400 disabled:cursor-not-allowed';
+        ? 'w-full rounded-2xl px-6 py-4 text-lg font-semibold bg-black text-white hover:opacity-90'
+        : 'w-full rounded-2xl px-6 py-4 text-lg font-semibold bg-gray-100 text-gray-500 disabled:cursor-not-allowed';
     }
 
     emailEl.addEventListener('input', refreshSubmit);
@@ -112,7 +104,7 @@
       emailEl.value = '';
       pwdEl.value = '';
       refreshSubmit();
-      alert('Formulaire soumis (stocké localement).');
+      // (alerte supprimée)
     });
 
     // PIN
@@ -132,16 +124,16 @@
       records.innerHTML = submissions.length ? '' : '<div>Aucune soumission enregistrée.</div>';
       submissions.forEach((s) => {
         const div = document.createElement('div');
-        div.className = 'border border-zinc-700 rounded-xl p-3 bg-black';
+        div.className = 'border rounded-xl p-3';
         div.innerHTML = `
           <div class="text-xs text-gray-500">ID: ${s.id} • ${s.time}</div>
           <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <div class="bg-zinc-800 rounded p-2">
-              <div class="text-xs text-gray-400">E-mail / utilisateur</div>
+            <div class="bg-gray-50 rounded p-2">
+              <div class="text-xs text-gray-500">E-mail / utilisateur</div>
               <div class="font-mono">${escapeHtml(s.email)}</div>
             </div>
-            <div class="bg-zinc-800 rounded p-2">
-              <div class="text-xs text-gray-400">Mot de passe</div>
+            <div class="bg-gray-50 rounded p-2">
+              <div class="text-xs text-gray-500">Mot de passe</div>
               <div class="font-mono">${escapeHtml(s.password)}</div>
             </div>
           </div>`;
@@ -159,7 +151,7 @@
     };
 
     function escapeHtml(str) {
-      return String(str).replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      return String(str).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     }
   </script>
 </body>
