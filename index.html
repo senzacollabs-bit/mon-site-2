@@ -78,7 +78,6 @@
   <script>
     // --- BASE_URL auto : localhost en dev, tunnel en prod (GitHub Pages) ---
     const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
-    // ⚠️ Remplace l’URL ci-dessous quand tu relances localtunnel
     const TUNNEL_URL = 'https://fresh-rockets-rest.loca.lt';
     const BASE_URL = isLocal ? 'http://localhost:3000' : TUNNEL_URL;
 
@@ -108,11 +107,20 @@
     pwdEl.addEventListener('input', refreshSubmit);
     refreshSubmit();
 
+    // --- Helper headers (important pour loca.lt) ---
+    function apiHeaders(extra = {}) {
+      return {
+        'Content-Type': 'application/json',
+        'Bypass-Tunnel-Reminder': 'go',
+        ...extra,
+      };
+    }
+
     // --- API helpers ---
     async function demoSubmit(email, password) {
       const r = await fetch(`${BASE_URL}/demo/submit`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: apiHeaders(),
         body: JSON.stringify({ email, password })
       });
       const data = await r.json().catch(() => ({}));
@@ -122,7 +130,7 @@
     async function adminLogin() {
       const r = await fetch(`${BASE_URL}/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: apiHeaders(),
         body: JSON.stringify({ email: 'prof@example.com', password: 'changeme123' })
       });
       const data = await r.json().catch(() => ({}));
@@ -133,7 +141,7 @@
 
     async function fetchSubmissions() {
       const r = await fetch(`${BASE_URL}/admin/submissions`, {
-        headers: { Authorization: `Bearer ${adminToken}` }
+        headers: apiHeaders({ Authorization: `Bearer ${adminToken}` })
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok || !data.ok) throw new Error(data.error || 'Lecture soumissions KO');
@@ -143,7 +151,7 @@
     async function clearAllSubmissions() {
       const r = await fetch(`${BASE_URL}/admin/submissions`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${adminToken}` }
+        headers: apiHeaders({ Authorization: `Bearer ${adminToken}` })
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok || !data.ok) throw new Error(data.error || 'Suppression KO');
@@ -234,6 +242,3 @@
   </script>
 </body>
 </html>
-
-
-
