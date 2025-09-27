@@ -76,8 +76,13 @@
   </div>
 
   <script>
-    const BASE_URL = 'http://localhost:3000'; // ton backend
-    const TEACHER_PIN = 'edu123';             // juste pour afficher la modale
+    // --- BASE_URL auto : localhost en dev, tunnel en prod (GitHub Pages) ---
+    const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
+    // ⚠️ Remplace l’URL ci-dessous quand tu relances localtunnel
+    const TUNNEL_URL = 'https://heavy-otters-press.loca.lt';
+    const BASE_URL = isLocal ? 'http://localhost:3000' : TUNNEL_URL;
+
+    const TEACHER_PIN = 'edu123';
     let adminToken = null;
 
     // --- éléments ---
