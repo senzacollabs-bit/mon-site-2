@@ -89,8 +89,8 @@
       const ok = emailEl.value.trim().length > 0 && pwdEl.value.length > 0;
       submitBtn.disabled = !ok;
       submitBtn.className = ok
-        ? 'w-full rounded-2xl px-6 py-4 text-lg font-semibold bg-black text-white hover:opacity-90'
-        : 'w-full rounded-2xl px-6 py-4 text-lg font-semibold bg-gray-100 text-gray-500 disabled:cursor-not-allowed';
+        ? 'w-full rounded-2xl px-6 py-4 text-lg font-semibold bg-[#f53152] text-white hover:opacity-90 transition'
+        : 'w-full rounded-2xl px-6 py-4 text-lg font-semibold bg-gray-100 text-gray-500 disabled:cursor-not-allowed transition';
     }
 
     emailEl.addEventListener('input', refreshSubmit);
