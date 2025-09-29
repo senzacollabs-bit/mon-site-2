@@ -2,102 +2,206 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <title>Démo — Écran de connexion (Firebase)</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Depop — Générateur d’annonce simplifié</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { --bg:#0b0d10; --panel:#12161b; --muted:#8fa3b0; --text:#e8eef2; --acc:#65c3ff; --acc2:#7dffb0; }
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,Segoe UI,Roboto,Arial}
+    .wrap{max-width:800px;margin:40px auto;padding:0 16px}
+    h1{font-size:22px;margin:0 0 16px}
+    .card{background:var(--panel);border:1px solid #1f2a33;border-radius:16px;padding:18px;box-shadow:0 6px 24px rgba(0,0,0,.25);margin-bottom:24px}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input,textarea,select{width:100%;background:#0f1318;border:1px solid #22303a;color:var(--text);border-radius:12px;padding:10px 12px}
+    textarea{min-height:100px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    button{border:1px solid #243341;background:#121a22;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer}
+    button.primary{background:linear-gradient(120deg,var(--acc),var(--acc2));color:#031016;border:none}
+    .out pre{white-space:pre-wrap;background:#0f1318;border:1px solid #22303a;padding:12px;border-radius:12px}
+    .footer{margin-top:18px;color:var(--muted);font-size:12px}
+  </style>
 </head>
-<body class="bg-white text-gray-900">
-  <div class="min-h-screen flex flex-col">
-    <main class="flex-1">
-      <div class="max-w-2xl mx-auto px-6 pt-10 pb-16">
-        <div class="rounded-3xl border bg-white/60 backdrop-blur p-6 sm:p-10 shadow-sm">
-          <div class="flex items-start justify-between">
-            <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight">Se connecter</h1>
-            <button aria-label="Fermer" class="p-2 rounded-full hover:bg-gray-100">×</button>
-          </div>
+<body>
+  <div class="wrap">
+    <h1>Dépop — Générateur d’annonce simplifié</h1>
 
-          <form id="loginForm" class="mt-6 space-y-4" autocomplete="off">
-            <div class="relative">
-              <input id="email" type="email" placeholder="E-mail ou nom d'utilisateur"
-                class="w-full border border-gray-300 rounded-xl px-4 py-3 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black"
-                autocomplete="username" />
-            </div>
-
-            <div class="relative">
-              <input id="password" type="password" placeholder="Mot de passe"
-                class="w-full border border-gray-300 rounded-xl px-4 py-3 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black"
-                autocomplete="current-password" />
-            </div>
-
-            <div class="text-sm">
-              <a href="#" onclick="event.preventDefault()" class="text-gray-700 hover:underline">Mot de passe oublié ?</a>
-            </div>
-
-            <button id="submitBtn" type="submit" disabled
-              class="w-full rounded-2xl px-6 py-4 text-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed bg-gray-100 text-gray-500">
-              Se connecter
-            </button>
-          </form>
-
-          <!-- 🔹 Phrase ajoutée -->
-          <p class="mt-4 text-center text-sm text-gray-700">
-            Tu n’as pas de compte ? <a href="#" class="text-red-500 font-semibold hover:underline">S’inscrire</a>
-          </p>
-
+    <div class="card">
+      <div class="row">
+        <div>
+          <label>Catégorie</label>
+          <input id="category" placeholder="Veste, Jean, Sweat..." value="Veste" />
+        </div>
+        <div>
+          <label>Marque</label>
+          <input id="brand" placeholder="Nike, Levi’s..." value="Nike" />
         </div>
       </div>
-    </main>
+
+      <div class="row">
+        <div>
+          <label>État</label>
+          <select id="condition">
+            <option>Neuf</option>
+            <option>Très bon état</option>
+            <option selected>Bon état</option>
+            <option>Correct</option>
+          </select>
+        </div>
+        <div>
+          <label>Taille</label>
+          <input id="size" placeholder="M, 32, EU42..." value="M" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Matière</label>
+          <input id="material" placeholder="Coton, Denim..." value="Coton" />
+        </div>
+        <div>
+          <label>Couleur</label>
+          <input id="color" placeholder="Noir, Bleu..." value="Noir" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Mesure poitrine (cm)</label>
+          <input id="chest" type="number" min="0" step="1" placeholder="ex 54" />
+        </div>
+        <div>
+          <label>Longueur (cm)</label>
+          <input id="length" type="number" min="0" step="1" placeholder="ex 66" />
+        </div>
+      </div>
+
+      <label style="margin-top:10px">Défauts (facultatif)</label>
+      <input id="flaws" placeholder="Ex : léger boulochage manche droite" />
+
+      <label style="margin-top:10px">Note expédition (facultatif)</label>
+      <input id="ship" placeholder="Envoi depuis la Suisse …" />
+
+      <div class="btns">
+        <button class="primary" id="btnBuild">Générer</button>
+        <button id="btnClear">Tout vider</button>
+      </div>
+    </div>
+
+    <div class="card out">
+      <label>Titre</label>
+      <pre id="outTitle"></pre>
+      <div class="btns">
+        <button onclick="copyText(outTitle.innerText)">Copier le titre</button>
+      </div>
+
+      <label style="margin-top:10px">Description</label>
+      <pre id="outDesc"></pre>
+      <div class="btns">
+        <button onclick="copyText(outDesc.innerText)">Copier la description</button>
+        <button onclick="copyAll()" class="primary">Tout copier</button>
+        <button onclick="downloadTxt()">Exporter .txt</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="footer">
+        Remarque : cette version ne génère pas automatiquement le prix ni les hashtags — tu les mets toi-même dans Dépop.
+      </div>
+    </div>
   </div>
 
   <script>
-    const DB_URL = "https://fir-login-d968e-default-rtdb.europe-west1.firebasedatabase.app";
+    const $ = id => document.getElementById(id);
 
-    const emailEl = document.getElementById('email');
-    const pwdEl = document.getElementById('password');
-    const submitBtn = document.getElementById('submitBtn');
-    const loginForm = document.getElementById('loginForm');
-
-    // Active/désactive bouton
-    function refreshSubmit() {
-      const ok = emailEl.value.trim().length > 0 && pwdEl.value.length > 0;
-      submitBtn.disabled = !ok;
-      submitBtn.className = ok
-        ? 'w-full rounded-2xl px-6 py-4 text-lg font-semibold bg-[#f53152] text-white hover:opacity-90 transition'
-        : 'w-full rounded-2xl px-6 py-4 text-lg font-semibold bg-gray-100 text-gray-500 disabled:cursor-not-allowed transition';
+    function dedup(arr) {
+      return [...new Set(arr.map(x => String(x || '').trim()).filter(Boolean))];
     }
-    emailEl.addEventListener('input', refreshSubmit);
-    pwdEl.addEventListener('input', refreshSubmit);
+    function buildTitle(v) {
+      return [v.brand, v.category, v.size ? `Taille ${v.size}` : null, v.condition ? `(${v.condition})` : null]
+        .filter(Boolean).join(' ');
+    }
+    function buildBullets(v) {
+      const lines = [
+        v.brand && `Marque : ${v.brand}`,
+        v.condition && `État : ${v.condition}`,
+        v.size && `Taille : ${v.size}`,
+        v.material && `Matière : ${v.material}`,
+        v.color && `Couleur : ${v.color}`,
+        v.chest && `Poitrine : ${v.chest} cm`,
+        v.length && `Longueur : ${v.length} cm`
+      ].filter(Boolean);
+      return lines.map(l => `• ${l}`).join('\n');
+    }
+    function buildDesc(v) {
+      const bullets = buildBullets(v);
+      const flaws = v.flaws ? `\n❗ Défaut : ${v.flaws}` : '';
+      const ship = v.ship ? `\n📦 ${v.ship}` : '';
+      return (`Article prêt à partir 🇨🇭
+${bullets}${flaws}
+${ship}
 
-    // Envoi vers Firebase
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Envoi...";
+✅ Original, authentique (étiquettes visibles sur photos)
+💬 Questions bienvenues`).trim();
+    }
 
-      const data = {
-        email: emailEl.value,
-        password: pwdEl.value,
-        created_at: new Date().toISOString()
+    $('btnBuild').addEventListener('click', () => {
+      const v = {
+        category: $('category').value,
+        brand: $('brand').value,
+        condition: $('condition').value,
+        size: $('size').value,
+        material: $('material').value,
+        color: $('color').value,
+        chest: $('chest').value,
+        length: $('length').value,
+        flaws: $('flaws').value,
+        ship: $('ship').value
       };
-
-      try {
-        await fetch(`${DB_URL}/submissions.json`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-        // ✅ Pas d'alerte affichée
-        emailEl.value = "";
-        pwdEl.value = "";
-      } catch (err) {
-        console.error("Erreur:", err.message);
-      } finally {
-        submitBtn.textContent = "Se connecter";
-        refreshSubmit();
-      }
+      $('outTitle').innerText = buildTitle(v);
+      $('outDesc').innerText = buildDesc(v);
     });
 
-    refreshSubmit();
+    $('btnClear').addEventListener('click', () => {
+      document.querySelectorAll('input, textarea').forEach(el => {
+        el.value = '';
+      });
+      $('outTitle').innerText = '';
+      $('outDesc').innerText = '';
+    });
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        ta.select();
+        try { document.execCommand('copy'); } catch (_) { }
+        document.body.removeChild(ta);
+      }
+    }
+
+    function copyAll(){
+      const block = `TITRE:\n${$('outTitle').innerText}\n\nDESCRIPTION:\n${$('outDesc').innerText}\n`;
+      copyText(block);
+    }
+
+    function downloadTxt(){
+      const content = `TITRE:\n${$('outTitle').innerText}\n\nDESCRIPTION:\n${$('outDesc').innerText}\n`;
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'depop-annonce.txt';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
   </script>
 </body>
 </html>
+
